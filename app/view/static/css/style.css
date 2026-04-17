@@ -1,0 +1,78 @@
+/* BdfDiff – custom stylesheet */
+
+/* --------------------------------------------------------------------------
+   Diff colour palette
+   -------------------------------------------------------------------------- */
+.diff-cell-added,
+.diff-added    { background-color: #d4edda !important; }
+
+.diff-cell-removed,
+.diff-removed  { background-color: #f8d7da !important; }
+
+.diff-cell-modified,
+.diff-modified { background-color: #fff3cd !important; }
+
+.diff-cell-equal,
+.diff-equal    { background-color: transparent; }
+
+/* Unified diff block */
+.diff-block {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.diff-block .line-add  { color: #a6e3a1; }
+.diff-block .line-del  { color: #f38ba8; }
+.diff-block .line-hdr  { color: #89b4fa; }
+
+/* --------------------------------------------------------------------------
+   Side-by-side table
+   -------------------------------------------------------------------------- */
+.diff-table {
+  table-layout: fixed;
+  word-break: break-all;
+}
+
+.diff-table td {
+  vertical-align: top;
+  padding: 0 4px !important;
+  line-height: 1.4;
+}
+
+.diff-table td:first-child,
+.diff-table td:nth-child(3) {
+  width: 3em;
+  text-align: right;
+  color: #aaa;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   Card diff list
+   -------------------------------------------------------------------------- */
+.diff-card .card-body pre {
+  font-size: 0.78rem;
+}
+
+/* Match unified diff colours inside card details */
+.diff-card .card-body pre .line-add { color: #198754; }
+.diff-card .card-body pre .line-del { color: #dc3545; }
+
+/* --------------------------------------------------------------------------
+   Sticky sidebar
+   -------------------------------------------------------------------------- */
+@media (max-width: 767.98px) {
+  .sticky-top { position: relative !important; top: auto !important; }
+}
+
+/* --------------------------------------------------------------------------
+   Misc
+   -------------------------------------------------------------------------- */
+.font-monospace { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+.navbar-brand   { letter-spacing: 0.05em; }

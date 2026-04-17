@@ -1,0 +1,8 @@
+# Core web framework
+flask>=3.0.0
+
+# Git integration (optional but recommended for commit-based diff)
+gitpython>=3.1.40
+
+# Testing
+pytest>=8.0.0

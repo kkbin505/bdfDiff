@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}BdfDiff – Git Diff{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <i class="bi bi-git"></i> Compare BDF file between two Git commits
+      </div>
+      <div class="card-body">
+        {% if not repo_info.is_git_repo %}
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle"></i>
+            The current working directory is not inside a Git repository.
+            Please run BdfDiff from a Git-managed project folder.
+          </div>
+        {% else %}
+          {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+          {% endif %}
+          <form action="{{ url_for('main.diff_commits') }}" method="post">
+            <div class="row g-3 mb-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">BDF file path (relative to repo root)</label>
+                <select name="filepath" class="form-select" required>
+                  <option value="">-- Select file --</option>
+                  {% for f in repo_info.bdf_files %}
+                    <option value="{{ f }}">{{ f }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-circle text-danger"></i> Old commit (base)
+                </label>
+                <select name="old_sha" class="form-select commit-select" required>
+                  <option value="">-- Select commit --</option>
+                  {% for c in commits %}
+                    <option value="{{ c.sha }}">
+                      {{ c.short_sha }} – {{ c.message[:60] }} ({{ c.date[:10] }})
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">
+                  <i class="bi bi-circle-fill text-success"></i> New commit (target)
+                </label>
+                <select name="new_sha" class="form-select commit-select" required>
+                  <option value="">-- Select commit --</option>
+                  {% for c in commits %}
+                    <option value="{{ c.sha }}">
+                      {{ c.short_sha }} – {{ c.message[:60] }} ({{ c.date[:10] }})
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-arrow-left-right"></i> Compute Diff
+            </button>
+          </form>
+
+          <!-- Commit log table -->
+          {% if commits %}
+            <div class="mt-4">
+              <h6 class="fw-semibold">
+                <i class="bi bi-clock-history"></i> Commit History
+              </h6>
+              <div class="table-responsive" style="max-height:320px;overflow-y:auto">
+                <table class="table table-sm table-hover table-bordered align-middle">
+                  <thead class="table-dark sticky-top">
+                    <tr>
+                      <th>SHA</th>
+                      <th>Date</th>
+                      <th>Author</th>
+                      <th>Message</th>
+                      <th>Files changed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for c in commits %}
+                      <tr>
+                        <td><code>{{ c.short_sha }}</code></td>
+                        <td class="text-nowrap text-muted">{{ c.date[:10] }}</td>
+                        <td class="text-muted text-nowrap">{{ c.author }}</td>
+                        <td>{{ c.message[:80] }}</td>
+                        <td>
+                          {% for f in c.files_changed[:3] %}
+                            <span class="badge bg-secondary">{{ f }}</span>
+                          {% endfor %}
+                          {% if c.files_changed|length > 3 %}
+                            <span class="text-muted">…</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
