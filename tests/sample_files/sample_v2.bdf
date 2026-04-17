@@ -1,0 +1,34 @@
+$ Nastran BDF – Sample v2
+$ Simple flat plate model – updated mesh and load
+BEGIN BULK
+$
+$ Grid points (2 grids added: GRID 7 and GRID 8)
+GRID    1               0.0     0.0     0.0
+GRID    2               1.0     0.0     0.0
+GRID    3               1.0     1.0     0.0
+GRID    4               0.0     1.0     0.0
+GRID    5               2.0     0.0     0.0
+GRID    6               2.0     1.0     0.0
+GRID    7               3.0     0.0     0.0
+GRID    8               3.0     1.0     0.0
+$
+$ Shell property (thickness changed from 0.01 to 0.02)
+PSHELL  10      1       0.02
+$
+$ Material (unchanged)
+MAT1    1       210000.0        0.3     7.85e-6
+$
+$ Elements (two new quads added)
+CQUAD4  100     10      1       2       3       4
+CQUAD4  101     10      2       5       6       3
+CQUAD4  102     10      5       7       8       6
+$
+$ Boundary conditions – SPC (unchanged)
+SPC1    1       123456  1
+SPC1    1       123456  4
+$
+$ Load (magnitude doubled)
+FORCE   1       2       0       2000.0  1.0     0.0     0.0
+FORCE   1       3       0       2000.0  1.0     0.0     0.0
+$
+ENDDATA
