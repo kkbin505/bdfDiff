@@ -28,7 +28,15 @@ instance/
 *.swo
 .DS_Store
 
+# Local private configuration (machine-specific paths)
+.bdfdiff.local.json
+.env.local
+config.local.py
+
 # pytest cache
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Local debug logs
+startup_*.log

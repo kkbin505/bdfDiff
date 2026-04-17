@@ -23,18 +23,21 @@
             <div class="row g-3 mb-3">
               <div class="col-12">
                 <label class="form-label fw-semibold">BDF file path (relative to repo root)</label>
-                <select name="filepath" class="form-select" required>
+                <select id="filepath-select" name="filepath" class="form-select" required>
                   <option value="">-- Select file --</option>
                   {% for f in repo_info.bdf_files %}
                     <option value="{{ f }}">{{ f }}</option>
                   {% endfor %}
                 </select>
+                <div class="form-text" id="commit-help-text">
+                  Select a file to show commits that touched this file.
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label fw-semibold">
                   <i class="bi bi-circle text-danger"></i> Old commit (base)
                 </label>
-                <select name="old_sha" class="form-select commit-select" required>
+                <select id="old-sha-select" name="old_sha" class="form-select commit-select" required>
                   <option value="">-- Select commit --</option>
                   {% for c in commits %}
                     <option value="{{ c.sha }}">
@@ -47,7 +50,7 @@
                 <label class="form-label fw-semibold">
                   <i class="bi bi-circle-fill text-success"></i> New commit (target)
                 </label>
-                <select name="new_sha" class="form-select commit-select" required>
+                <select id="new-sha-select" name="new_sha" class="form-select commit-select" required>
                   <option value="">-- Select commit --</option>
                   {% for c in commits %}
                     <option value="{{ c.sha }}">
@@ -106,4 +109,76 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    const fileSelect = document.getElementById("filepath-select");
+    const oldShaSelect = document.getElementById("old-sha-select");
+    const newShaSelect = document.getElementById("new-sha-select");
+    const helpText = document.getElementById("commit-help-text");
+
+    function resetCommitSelect(selectEl, label) {
+      selectEl.innerHTML = `<option value="">-- ${label} --</option>`;
+    }
+
+    function fillCommitOptions(commits) {
+      resetCommitSelect(oldShaSelect, "Select commit");
+      resetCommitSelect(newShaSelect, "Select commit");
+
+      for (const c of commits) {
+        const optionText = `${c.short_sha} - ${c.message.slice(0, 60)} (${c.date.slice(0, 10)})`;
+        const oldOption = document.createElement("option");
+        oldOption.value = c.sha;
+        oldOption.textContent = optionText;
+        oldShaSelect.appendChild(oldOption);
+
+        const newOption = document.createElement("option");
+        newOption.value = c.sha;
+        newOption.textContent = optionText;
+        newShaSelect.appendChild(newOption);
+      }
+    }
+
+    async function loadCommitsByFile(filepath) {
+      if (!filepath) {
+        helpText.textContent = "Select a file to show commits that touched this file.";
+        return;
+      }
+
+      helpText.textContent = "Loading commits for selected file...";
+      try {
+        const response = await fetch(`/api/commits?filepath=${encodeURIComponent(filepath)}`);
+        if (!response.ok) {
+          throw new Error("failed to load commits");
+        }
+        const commits = await response.json();
+        fillCommitOptions(commits);
+
+        if (commits.length >= 2) {
+          oldShaSelect.selectedIndex = 2;
+          newShaSelect.selectedIndex = 1;
+        }
+
+        helpText.textContent = `Loaded ${commits.length} commit(s) for ${filepath}.`;
+      } catch (err) {
+        resetCommitSelect(oldShaSelect, "Select commit");
+        resetCommitSelect(newShaSelect, "Select commit");
+        helpText.textContent = "Failed to load commits for this file.";
+      }
+    }
+
+    fileSelect.addEventListener("change", () => {
+      loadCommitsByFile(fileSelect.value);
+    });
+
+    document.querySelector("form").addEventListener("submit", (event) => {
+      if (oldShaSelect.value && newShaSelect.value && oldShaSelect.value === newShaSelect.value) {
+        event.preventDefault();
+        helpText.textContent = "Old commit and new commit cannot be the same.";
+      }
+    });
+  })();
+</script>
 {% endblock %}
