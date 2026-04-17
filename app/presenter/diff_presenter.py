@@ -1,14 +1,14 @@
 """
-Diff Presenter – Presenter layer
-Orchestrates Model operations and prepares data for the View.
+Diff Presenter - Presenter layer.
+Orchestrates model operations and prepares data for the view.
 """
 
 from __future__ import annotations
 
 import os
-import tempfile
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
+from app.model.bdf_diff_engine import BDFDiffEngine
 from app.model.bdf_parser import BdfParser
 from app.model.diff_engine import DiffEngine, DiffResult
 from app.model.git_manager import GitManager
@@ -21,6 +21,7 @@ class DiffPresenter:
         self.repo_path = os.path.abspath(repo_path)
         self._parser = BdfParser()
         self._engine = DiffEngine()
+        self._mesh_engine = BDFDiffEngine(atol=1e-6)
         self._git = GitManager(repo_path)
 
     # ------------------------------------------------------------------
@@ -51,11 +52,12 @@ class DiffPresenter:
         old_sha: str,
         new_sha: str,
     ) -> dict:
-        """Diff *filepath* between two git commits."""
+        """Diff filepath between two git commits."""
         old_text = self._git.get_file_at_commit(filepath, old_sha) or ""
         new_text = self._git.get_file_at_commit(filepath, new_sha) or ""
         return self._compute_diff(
-            old_text, new_text,
+            old_text,
+            new_text,
             f"{filepath}@{old_sha[:7]}",
             f"{filepath}@{new_sha[:7]}",
         )
@@ -65,11 +67,12 @@ class DiffPresenter:
         filepath: str,
         sha: str,
     ) -> dict:
-        """Diff *filepath* between a git commit and the working-tree version."""
+        """Diff filepath between a git commit and the working-tree version."""
         old_text = self._git.get_file_at_commit(filepath, sha) or ""
         new_text = self._read_file(filepath)
         return self._compute_diff(
-            old_text, new_text,
+            old_text,
+            new_text,
             f"{filepath}@{sha[:7]}",
             f"{filepath} (working tree)",
         )
@@ -103,6 +106,7 @@ class DiffPresenter:
         text = self._read_file(filepath)
         if not text:
             return {"error": f"Cannot read file: {filepath}"}
+
         model = self._parser.parse_text(text)
         return {
             "filepath": filepath,
@@ -125,19 +129,37 @@ class DiffPresenter:
         old_model = self._parser.parse_text(old_text)
         new_model = self._parser.parse_text(new_text)
         result: DiffResult = self._engine.diff_models(
-            old_model, new_model, old_text, new_text
+            old_model,
+            new_model,
+            old_text,
+            new_text,
         )
 
         # Keyword filter list for the UI
         changed_keywords = sorted(result.keyword_stats.keys())
-        all_keywords = sorted(
-            set(old_model.keywords()) | set(new_model.keywords())
-        )
+        all_keywords = sorted(set(old_model.keywords()) | set(new_model.keywords()))
 
         # Group card diffs by keyword for templating convenience
+        card_diffs = [cd.to_dict() for cd in result.card_diffs]
         diffs_by_keyword: Dict[str, List[dict]] = {}
-        for cd in result.card_diffs:
-            diffs_by_keyword.setdefault(cd.keyword, []).append(cd.to_dict())
+        for cd in card_diffs:
+            diffs_by_keyword.setdefault(cd["keyword"], []).append(cd)
+
+        mesh_diff: dict
+        try:
+            mesh_diff = self._mesh_engine.diff_texts(old_text, new_text)
+        except Exception as exc:  # pragma: no cover
+            mesh_diff = {
+                "nodes": {"added": [], "deleted": [], "modified": {}},
+                "elements": {"added": [], "deleted": [], "modified": {}},
+                "materials": {"added": [], "deleted": [], "modified": {}},
+                "summary": {"total_changes": 0},
+                "render": {
+                    "nodes": {"old": {}, "new": {}},
+                    "elements": {"old": {}, "new": {}},
+                },
+                "error": str(exc),
+            }
 
         return {
             "old_label": old_label,
@@ -146,12 +168,13 @@ class DiffPresenter:
             "keyword_stats": result.keyword_stats,
             "all_keywords": all_keywords,
             "changed_keywords": changed_keywords,
-            "card_diffs": [cd.to_dict() for cd in result.card_diffs],
+            "card_diffs": card_diffs,
             "diffs_by_keyword": diffs_by_keyword,
             "text_diff": result.text_diff,
             "side_by_side": result.side_by_side,
             "old_summary": old_model.summary(),
             "new_summary": new_model.summary(),
+            "mesh_diff": mesh_diff,
         }
 
     @staticmethod

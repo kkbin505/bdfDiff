@@ -4,5 +4,23 @@ flask>=3.0.0
 # Git integration (optional but recommended for commit-based diff)
 gitpython>=3.1.40
 
+# Nastran parsing and numerical diff
+pyNastran>=1.3.4
+numpy>=1.24.0
+
+# 3D interactive rendering and data helpers
+plotly>=5.18.0
+pandas>=2.0.0
+
+# Utility diff and rich terminal output
+deepdiff>=6.7.0
+rich>=13.0.0
+
+# Optional: standalone interactive dashboard
+streamlit>=1.30.0
+
+# Optional: advanced 3D rendering backend
+pyvista>=0.43.0
+
 # Testing
 pytest>=8.0.0

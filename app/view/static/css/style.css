@@ -1,24 +1,54 @@
-/* BdfDiff – custom stylesheet */
+/* BdfDiff – custom stylesheet (VSCode dark theme) */
+
+body {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  font-family: "Segoe UI", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* VSCode dark theme palette */
+.navbar, .sidebar, .panel, .card, .modal-content {
+  background-color: #252526 !important;
+  color: #d4d4d4 !important;
+  border-color: #333 !important;
+}
+
+a, .link {
+  color: #3794ff;
+}
+a:hover, .link:hover {
+  color: #40a9ff;
+}
+
+input, textarea, select, button {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border: 1px solid #333;
+}
+input:focus, textarea:focus, select:focus {
+  outline: 1px solid #3794ff;
+}
 
 /* --------------------------------------------------------------------------
    Diff colour palette
    -------------------------------------------------------------------------- */
+
 .diff-cell-added,
-.diff-added    { background-color: #d4edda !important; }
+.diff-added    { background-color: #144620 !important; }
 
 .diff-cell-removed,
-.diff-removed  { background-color: #f8d7da !important; }
+.diff-removed  { background-color: #4b1a1a !important; }
 
 .diff-cell-modified,
-.diff-modified { background-color: #fff3cd !important; }
+.diff-modified { background-color: #f4ff1b !important; }
 
 .diff-cell-equal,
 .diff-equal    { background-color: transparent; }
 
 /* Unified diff block */
 .diff-block {
-  background: #1e1e2e;
-  color: #cdd6f4;
+  background: #23272e;
+  color: #d4d4d4;
   padding: 1rem;
   border-radius: 6px;
   font-size: 0.78rem;
@@ -26,9 +56,9 @@
   white-space: pre;
 }
 
-.diff-block .line-add  { color: #a6e3a1; }
-.diff-block .line-del  { color: #f38ba8; }
-.diff-block .line-hdr  { color: #89b4fa; }
+.diff-block .line-add  { color: #6a9955; }
+.diff-block .line-del  { color: #f44747; }
+.diff-block .line-hdr  { color: #569cd6; }
 
 /* --------------------------------------------------------------------------
    Side-by-side table
@@ -36,6 +66,8 @@
 .diff-table {
   table-layout: fixed;
   word-break: break-all;
+  background: #23272e;
+  color: #d4d4d4;
 }
 
 .diff-table td {
@@ -48,7 +80,7 @@
 .diff-table td:nth-child(3) {
   width: 3em;
   text-align: right;
-  color: #aaa;
+  color: #606060;
   user-select: none;
   white-space: nowrap;
 }
@@ -58,11 +90,13 @@
    -------------------------------------------------------------------------- */
 .diff-card .card-body pre {
   font-size: 0.78rem;
+  background: #23272e;
+  color: #d4d4d4;
 }
 
 /* Match unified diff colours inside card details */
-.diff-card .card-body pre .line-add { color: #198754; }
-.diff-card .card-body pre .line-del { color: #dc3545; }
+.diff-card .card-body pre .line-add { color: #6a9955; }
+.diff-card .card-body pre .line-del { color: #f44747; }
 
 /* --------------------------------------------------------------------------
    Sticky sidebar
@@ -76,3 +110,20 @@
    -------------------------------------------------------------------------- */
 .font-monospace { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
 .navbar-brand   { letter-spacing: 0.05em; }
+
+/* Adjust text background for better contrast */
+pre, code {
+  background-color: #2d2d2d;
+  color: #f9d71c; /* Bright yellow for high contrast */
+  padding: 0.5em;
+  border-radius: 4px;
+}
+
+/* Style for warning messages */
+.warning-message {
+  color: #ffcc00; /* Bright yellow for warnings */
+  background-color: #333333; /* Dark background for contrast */
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+}

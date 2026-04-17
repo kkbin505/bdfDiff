@@ -118,6 +118,13 @@ def diff_commits():
     )
 
 
+@main.route("/grid_visualization")
+def grid_visualization():
+    presenter = _get_presenter()
+    data = presenter.get_diff_data()
+    return render_template("grid_visualization.html", data=data)
+
+
 # API endpoints -----------------------------------------------------------
 
 @main.route("/api/commits")

@@ -16,9 +16,9 @@ V2 = os.path.join(SAMPLE_DIR, "sample_v2.bdf")
 
 def _models_and_texts():
     parser = BdfParser()
-    with open(V1) as f:
+    with open(V1, encoding="utf-8") as f:
         old_text = f.read()
-    with open(V2) as f:
+    with open(V2, encoding="utf-8") as f:
         new_text = f.read()
     return parser.parse_text(old_text), parser.parse_text(new_text), old_text, new_text
 
@@ -89,7 +89,7 @@ class TestDiffEngineIdentical:
 
     def test_identical_has_no_changes(self):
         parser = BdfParser()
-        with open(V1) as f:
+        with open(V1, encoding="utf-8") as f:
             text = f.read()
         model = parser.parse_text(text)
         result = DiffEngine().diff_models(model, model, text, text)

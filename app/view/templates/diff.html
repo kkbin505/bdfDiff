@@ -92,6 +92,11 @@
           <i class="bi bi-file-text"></i> Unified Diff
         </button>
       </li>
+      <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-grid">
+          <i class="bi bi-cube"></i> 3D Grid Visualization
+        </button>
+      </li>
     </ul>
 
     <div class="tab-content">
@@ -200,6 +205,18 @@
       <div class="tab-pane fade" id="tab-unified">
         <pre class="diff-block">{% for line in data.text_diff %}{{ line }}{% endfor %}</pre>
       </div>
+
+      <!-- Tab 4: 3D Grid Visualization -->
+      <div class="tab-pane fade" id="tab-grid">
+        <div class="card shadow-sm">
+          <div class="card-header bg-dark text-white py-2">
+            <i class="bi bi-cube"></i> 3D Grid Visualization
+          </div>
+          <div class="card-body" style="background:#1e1e1e;">
+            <div id="bdf-3d-grid" style="width:100%;height:500px;"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -208,6 +225,18 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script type="module">
+import { renderBdfGridDiff } from "{{ url_for('static', filename='js/3d_grid.js') }}";
+window.bdfMeshDiff = {{ data.mesh_diff|tojson if data.mesh_diff is defined else {
+  'nodes': {'added': [], 'deleted': [], 'modified': {}},
+  'elements': {'added': [], 'deleted': [], 'modified': {}},
+  'materials': {'added': [], 'deleted': [], 'modified': {}},
+  'summary': {'total_changes': 0},
+  'render': {'nodes': {'old': {}, 'new': {}}, 'elements': {'old': {}, 'new': {}}}
+}|tojson }};
+renderBdfGridDiff('bdf-3d-grid', window.bdfMeshDiff);
+</script>
 <script>
 function filterKeyword(kw) {
   // Update active button

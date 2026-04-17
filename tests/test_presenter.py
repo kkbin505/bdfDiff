@@ -59,9 +59,9 @@ class TestDiffPresenterFiles:
         assert len(data["text_diff"]) > 0
 
     def test_diff_texts_works(self):
-        with open(V1) as f:
+        with open(V1, encoding="utf-8") as f:
             old = f.read()
-        with open(V2) as f:
+        with open(V2, encoding="utf-8") as f:
             new = f.read()
         data = self.presenter.diff_texts(old, new)
         assert data["summary"]["added"] >= 3
