@@ -1,7 +1,7 @@
 # BdfDiff – Nastran BDF Visual Diff Tool
 
-A Python MVP (Model–View–Presenter) web application for visually comparing
-two [Nastran BDF](https://nastran.readthedocs.io/) files and managing model
+A Python web application for visually comparing
+two [Nastran BDF] files and managing model
 versions with Git.
 
 ---
@@ -61,6 +61,16 @@ python run.py --repo /path/to/your/nastran/project
 # 3. Open http://127.0.0.1:5000 in your browser
 ```
 
+### Recommended run command (Conda)
+
+If you use a dedicated Conda environment (for example `nastran`), start BdfDiff with:
+
+```bash
+conda run --no-capture-output -n nastran python run.py --repo /path/to/your/nastran/project
+```
+
+This avoids interpreter mismatch issues when `python run.py` is executed from a different environment.
+
 ### Options
 
 ```
@@ -71,6 +81,38 @@ python run.py --help
   --port PORT     Port number (default: 5000)
   --debug         Enable Flask debug / auto-reload mode
 ```
+
+### Keep local paths private (recommended)
+
+To avoid committing machine-specific absolute paths (for example `D:/...`) to GitHub,
+create a local config file that is git-ignored:
+
+```bash
+cp .bdfdiff.local.example.json .bdfdiff.local.json
+```
+
+On Windows PowerShell:
+
+```powershell
+Copy-Item .bdfdiff.local.example.json .bdfdiff.local.json
+```
+
+Edit `.bdfdiff.local.json` and set:
+
+```json
+{
+  "repo_path": "D:/LiZhen/FEA/bdfDiff/testfile"
+}
+```
+
+`run.py` loads repo path in this order:
+
+1. `--repo`
+2. `.bdfdiff.local.json`
+3. `REPO_PATH` environment variable
+4. `.`
+
+Note: `.bdfdiff.local.json` is intentionally ignored by Git and will not be uploaded to GitHub.
 
 ---
 

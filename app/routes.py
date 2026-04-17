@@ -108,7 +108,27 @@ def diff_commits():
                 error="Please fill all fields.",
             )
 
+        if old_sha == new_sha:
+            return render_template(
+                "diff_commits.html",
+                repo_info=repo_info,
+                commits=presenter.get_commits(filepath=filepath),
+                error="Old commit and new commit cannot be the same.",
+            )
+
         diff_data = presenter.diff_commits(filepath, old_sha, new_sha)
+        if (
+            not diff_data.get("summary", {}).get("total_changes", 0)
+            and not diff_data.get("old_summary")
+            and not diff_data.get("new_summary")
+        ):
+            return render_template(
+                "diff_commits.html",
+                repo_info=repo_info,
+                commits=presenter.get_commits(filepath=filepath),
+                error="Unable to load file content from one or both commits. Please check the selected file and commits.",
+            )
+
         diff_data["mode"] = "git"
         return render_template("diff.html", data=diff_data)
 

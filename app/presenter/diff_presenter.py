@@ -69,7 +69,8 @@ class DiffPresenter:
     ) -> dict:
         """Diff filepath between a git commit and the working-tree version."""
         old_text = self._git.get_file_at_commit(filepath, sha) or ""
-        new_text = self._read_file(filepath)
+        resolved = self._git.resolve_repo_file(filepath)
+        new_text = self._read_file(resolved or filepath)
         return self._compute_diff(
             old_text,
             new_text,
