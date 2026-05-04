@@ -1,115 +1,65 @@
-{% extends "base.html" %}
-{% block title %}BdfDiff – Home{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BdfDiff</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        crossorigin="anonymous" />
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        crossorigin="anonymous" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
 
-{% block content %}
-<div class="row g-4">
-  <!-- Left: repo info -->
-  <div class="col-lg-4">
-    <div class="card shadow-sm h-100">
-      <div class="card-header bg-dark text-white">
-        <i class="bi bi-git"></i> Repository
-      </div>
-      <div class="card-body">
-        {% if repo_info.is_git_repo %}
-          <dl class="mb-0">
-            <dt>Name</dt>
-            <dd>{{ repo_info.repo_name }}</dd>
-            <dt>Branch</dt>
-            <dd><span class="badge bg-secondary">{{ repo_info.current_branch }}</span></dd>
-            <dt>Tracked BDF files</dt>
-            <dd>
-              {% if repo_info.bdf_files %}
-                <ul class="list-unstyled mb-0">
-                  {% for f in repo_info.bdf_files %}
-                    <li><i class="bi bi-file-earmark-text text-info"></i> {{ f }}</li>
-                  {% endfor %}
-                </ul>
-              {% else %}
-                <em class="text-muted">No BDF files tracked yet.</em>
-              {% endif %}
-            </dd>
-          </dl>
-        {% else %}
-          <p class="text-muted mb-0">
-            <i class="bi bi-exclamation-circle"></i>
-            The working directory is not a Git repository.<br />
-            Git-based diff requires running BdfDiff inside a Git-managed folder.
-          </p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <!-- Middle: quick actions -->
-  <div class="col-lg-4">
-    <div class="card shadow-sm h-100">
-      <div class="card-header bg-dark text-white">
-        <i class="bi bi-lightning"></i> Quick Actions
-      </div>
-      <div class="card-body d-flex flex-column gap-3">
-        <a href="{{ url_for('main.diff_upload') }}"
-           class="btn btn-primary btn-lg">
-          <i class="bi bi-upload"></i> Upload &amp; Diff two BDF files
-        </a>
-
-        <!-- Inline paste form -->
-        <button class="btn btn-outline-secondary" type="button"
-                data-bs-toggle="collapse" data-bs-target="#pasteForm">
-          <i class="bi bi-clipboard"></i> Paste BDF text and diff
-        </button>
-        <div class="collapse" id="pasteForm">
-          <form action="{{ url_for('main.diff_text') }}" method="post" class="mt-2">
-            <div class="row g-2">
-              <div class="col-6">
-                <label class="form-label fw-semibold">Old BDF</label>
-                <textarea name="old_text" class="form-control font-monospace"
-                          rows="8" placeholder="Paste old BDF content…"></textarea>
-              </div>
-              <div class="col-6">
-                <label class="form-label fw-semibold">New BDF</label>
-                <textarea name="new_text" class="form-control font-monospace"
-                          rows="8" placeholder="Paste new BDF content…"></textarea>
-              </div>
-            </div>
-            <button type="submit" class="btn btn-success mt-2 w-100">
-              <i class="bi bi-arrow-left-right"></i> Compute Diff
-            </button>
-          </form>
-        </div>
-
-        {% if repo_info.is_git_repo %}
-          <a href="{{ url_for('main.diff_commits') }}"
-             class="btn btn-outline-primary btn-lg">
-            <i class="bi bi-git"></i> Compare Git commits
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="#home">
+      <i class="bi bi-file-diff"></i> BdfDiff
+    </a>
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-3">
+        <li class="nav-item">
+          <a class="nav-link" href="#home" data-page="home">
+            <i class="bi bi-house"></i> Home
           </a>
-        {% endif %}
-      </div>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#upload" data-page="upload">
+            <i class="bi bi-upload"></i> Upload &amp; Diff
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#git-diff" data-page="git-diff">
+            <i class="bi bi-git"></i> Git Diff
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
+</nav>
 
-  <!-- Right: recent commits -->
-  <div class="col-lg-4">
-    <div class="card shadow-sm h-100">
-      <div class="card-header bg-dark text-white">
-        <i class="bi bi-clock-history"></i> Recent commits
-      </div>
-      {% if commits %}
-        <div class="list-group list-group-flush overflow-auto" style="max-height:420px">
-          {% for c in commits %}
-            <div class="list-group-item list-group-item-action py-2">
-              <div class="d-flex justify-content-between align-items-start">
-                <code class="text-primary">{{ c.short_sha }}</code>
-                <small class="text-muted">{{ c.date }}</small>
-              </div>
-              <div class="text-truncate">{{ c.message }}</div>
-              <small class="text-muted">{{ c.author }}</small>
-            </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="card-body text-muted">No commits found.</div>
-      {% endif %}
+<div class="container-fluid py-4" id="app-content">
+  <div class="text-center py-5">
+    <div class="spinner-border text-secondary" role="status">
+      <span class="visually-hidden">Loading...</span>
     </div>
   </div>
 </div>
-{% endblock %}
+
+<footer class="text-center text-muted py-3 border-top">
+  <small>BdfDiff &mdash; Nastran BDF Visual Diff Tool</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
